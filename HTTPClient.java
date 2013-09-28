@@ -166,16 +166,13 @@ public class HTTPClient{
 		// FINISH POPULATING this.response 
 	}
 
-	public void doGet() throws UnknownHostException, SocketException, IOException{
-
-
+	private void sendRequest( HTTPMethod method ) throws UnknownHostException, SocketException, IOException{
 		SocketClient sock = new SocketClient( this.request.getURL().getHost(), this.port,
 											  false) ;
-
 		try{
 			sock.connect() ;
 
-			String getMessage = serializeRequest( HTTPMethod.GET ,this.request ) ;
+			String getMessage = serializeRequest( method ,this.request ) ;
 			System.out.println( getMessage ) ;
 			
 			InputStream input = null ;
@@ -185,13 +182,25 @@ public class HTTPClient{
 		finally{
 			sock.disconnect() ;
 		}
+
 	}
+
+	public void doGet() throws UnknownHostException, SocketException, IOException{
+		
+		sendRequest( HTTPMethod.GET ) ;
+		
+	}
+
 	public void doGetWithRedirect(){
 
 	}
 
-	public void doPost(){
+	public void doPost() throws UnknownHostException, SocketException, IOException{
 
+		this.request.getHeaders().put("csrftoken" , "2b472c3026b53b168483fbddd92f8021") ;
+		this.request.getHeaders().put("sessionid", "eecd87b37529c1b70a674057fc4bd578" ) ;
+
+		sendRequest( HTTPMethod.POST ) ;
 	}
 
 	public void doPostWithRedirect(){
@@ -246,17 +255,14 @@ public class HTTPClient{
 	public static void main(String args[]) throws MalformedURLException{
 
 
-
-		System.out.println( ( new URL("http://cs5700.ccs.neu.edu") ).getHost() ) ;
-		System.out.println( ( new URL("http://cs5700.ccs.neu.edu") ).getProtocol() ) ;
-
-		HTTPClient client = new HTTPClient( new URL("http://cs5700.ccs.neu.edu") ) ;
+		HTTPClient client = new HTTPClient( new URL("http://cs5700.ccs.neu.edu/accounts/login/?next=/fakebook/") ) ;
 		Map<String,String> headers = new HashMap<String,String>() ;
 		headers.put( "From" , "dang.an249@gmail.com" ) ;
 
 		client.getRequest().setHeaders( headers ) ;
+		client.getRequest().setRequestBody("csrfmiddlewaretoken=2b472c3026b53b168483fbddd92f8021&username=001121072&password=HSBRE7B8&next=%2Ffakebook%2F") ;
 		try{
-			client.doGet() ;
+			client.doPost() ;
 			System.out.println( client.getRequest().toString() ) ;
 			System.out.println( client.getResponse().toString() ) ;
 		}
