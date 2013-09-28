@@ -43,7 +43,8 @@ public class HTTPResponse{
 
 	@Override
 	public String toString(){
-		return  "URL : " + url.toString() + "\n" 				
+		return  "RESPONSE :" + "\n" + 
+				"URL : " + url.toString() + "\n" 				
 				+ "STATUS CODE : " + Integer.toString( code.value() )  + "\n"  
 				+ "HEADERS: " + "\n"
 				+ headers.toString() + "\n"  

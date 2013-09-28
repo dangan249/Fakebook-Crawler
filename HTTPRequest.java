@@ -44,4 +44,15 @@ public class HTTPRequest{
 	public Map<String, String> getHeaders(){
 		return this.headers ;
 	}
+
+		@Override
+	public String toString(){
+		return  "REQUEST :" + "\n" + 
+				"URL : " + url.toString() + "\n" 				
+				+ "HEADERS: " + "\n"
+				+ headers.toString() + "\n"  
+				+ "BODY : " + "\n" 
+				+ (requestBody == null ? "" : requestBody )+ "\n" ;
+	}
+
 }

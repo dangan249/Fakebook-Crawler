@@ -51,14 +51,34 @@ public class HTTPClient{
 	// create the entire HTTP 1.0 message from the given HTTPRequest
 	// so this.sock can use it
 	private String serializeRequest( HTTPMethod method, HTTPRequest request){
-		StringBuilder builder = new StringBuilder() ;
+		// give StringBuilder some initial capacity will save time if the 
+		// request is big
+		StringBuilder builder = new StringBuilder(112) ;
 
+		// BUILDING FIRST LINE 
 		builder.append( method.value() ) ;
 		builder.append( " " ) ;
 		String path = request.getURL().getPath() ;
 		builder.append(  path == "" ? "/" : path ) ; 
 		builder.append( " " ) ;
 		builder.append( "HTTP/1.0\r\n" ) ;
+
+
+		// BUILDING HEADERS 
+		Map<String,String> headers = request.getHeaders() ;
+		for( String key : headers.keySet() ){
+			builder.append( key ) ;
+			builder.append( ":" ) ;
+			builder.append( headers.get( key ) ) ;
+			builder.append( "\r\n" ) ;
+		}
+ 
+		builder.append( "\r\n" ) ;
+
+		String body = request.getRequestBody() ;
+		if( body != null && !body.isEmpty() ){
+			builder.append( body ) ;
+		}	
 		return builder.toString() ;
 	}
 
@@ -231,10 +251,13 @@ public class HTTPClient{
 		System.out.println( ( new URL("http://cs5700.ccs.neu.edu") ).getProtocol() ) ;
 
 		HTTPClient client = new HTTPClient( new URL("http://cs5700.ccs.neu.edu") ) ;
+		Map<String,String> headers = new HashMap<String,String>() ;
+		headers.put( "From" , "dang.an249@gmail.com" ) ;
 
+		client.getRequest().setHeaders( headers ) ;
 		try{
 			client.doGet() ;
-
+			System.out.println( client.getRequest().toString() ) ;
 			System.out.println( client.getResponse().toString() ) ;
 		}
 		catch( UnknownHostException ex){
