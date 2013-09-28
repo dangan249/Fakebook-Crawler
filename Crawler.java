@@ -1,4 +1,19 @@
-import java.util.ArrayList ;
+/*
+	Programmers: An Dang + Pedro Benedicte
+	Network Fundamentals
+	Project 2 - Fakebook Web Crawler
+
+*/
+
+import java.util.List ;
+import java.util.LinkedList ;
+import java.util.Set ;
+import java.util.HashSet ;
+import java.util.Queue ;
+import java.util.Map ;
+import java.util.HashMap ;
+
+
 import java.net.URL ;
 public class Crawler {
 
@@ -7,10 +22,19 @@ public class Crawler {
 	private String password ;
 	private URL rootURL = new URL("http://cs5700.ccs.neu.edu/") ;
 	private URL logInURL = new URL("http://cs5700.ccs.neu.edu/accounts/login/?next=/fakebook/")
-	private List<URL> visitedURL ;
+	private Set<URL> visitedURL ;
 	private Queue<URL> frontierURL ;
 	private List<String> secretFlags ;
 	private Map<String, String> cookies ;
+
+	public Crawler( String id, String password ){
+		this.id = id ;
+		this.password = password ;
+		this.HTTPClient = new HTTPClient() ;
+		this.visitedURL = new HashSet<URL>() ;
+		this.frontierURL = new LinkedList<URL>() ;
+		this.cookies = new HashMap<URL>() ;
+	}
 
 	// TODO
 	// log in Fakebook and get session + csrf cookies  
@@ -24,6 +48,8 @@ public class Crawler {
 	// crawl the Fakebook
 	// side-effect: modify this.visitedURL, this.frontierURL, this.secretFlags
 	public void crawl(){
+
+		// check to see if cookies is set otherwise throw error
 
 		// make the GET call
 
@@ -46,6 +72,27 @@ public class Crawler {
 	// TODO
 	// print to StdOut all keys in this.secretFlags
 	public void printSecretKeys(){
+		
+	}
 
+	// TODO
+	public String getSessionCookieName(){
+		return "" ;
+	}
+
+	// TODO
+	public String getSessionCookieValue(){
+		return "" ;
+	}
+
+	public void static main(String args[]){
+
+		Crawler crawler = new Crawler( args[0], args[1]) ;
+
+		crawler.login() ;
+
+		crawler.crawl() ;
+
+		crawler.printSecretKeys() ;
 	}
 }
