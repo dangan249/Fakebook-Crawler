@@ -197,9 +197,6 @@ public class HTTPClient{
 
 	public void doPost() throws UnknownHostException, SocketException, IOException{
 
-		this.request.getHeaders().put("csrftoken" , "2b472c3026b53b168483fbddd92f8021") ;
-		this.request.getHeaders().put("sessionid", "eecd87b37529c1b70a674057fc4bd578" ) ;
-
 		sendRequest( HTTPMethod.POST ) ;
 	}
 
