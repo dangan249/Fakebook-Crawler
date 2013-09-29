@@ -59,18 +59,24 @@ public class Crawler {
 
 			HTTPRequest request = new HTTPRequest( this.logInURL ) ;
 
+			// First request to know his cookies
 			Map<String,String> headers = new HashMap<String,String>() ;
 			headers.put( "From" , "dang.an249@gmail.com" ) ;
 			request.setHeaders( headers ) ;
-
 			this.client.setRequest( request ) ;
-			// get the login page with its token
-
-			client.doGet() ;			
+			client.doGet(cookies) ;
+		
+			// Second request with the body specified and the cookies
+			String s1 = "csrfmiddlewaretoken=";
+			String s2 = this.cookies.get("csrftoken");
+			String s3 = "&username=001908844&password=YEN05M01&next=%2Ffakebook%2F";
+			String body = new String(s1+s2+s3);
+			request.setRequestBody(body);
+			request.addCookies(this.cookies);
+			//System.out.println(headers.toString());
+			client.doGet(cookies) ;
 			System.out.println( client.getRequest().toString() ) ;
 			System.out.println( client.getResponse().toString() ) ;
-
-
 		}
 		catch( UnknownHostException ex){
 			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
