@@ -1,5 +1,7 @@
 import java.net.URL ;
+import java.util.Iterator ;
 import java.util.Map ;
+import java.util.HashMap ;
 
 public class HTTPResponse{
 
@@ -39,7 +41,6 @@ public class HTTPResponse{
 	public Map<String, String>  getHeaders(){
 		return this.headers ;
 	}
-
 
 	@Override
 	public String toString(){

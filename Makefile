@@ -1,5 +1,4 @@
-#all: crawler httprequest httpclient httpresponse socketclient
-all: httpclient
+all: crawler httprequest httpclient httpresponse socketclient
 
 crawler: Crawler.java
 	javac Crawler.java
@@ -14,4 +13,4 @@ httpresponse: HTTPResponse.java
 	javac HTTPResponse.java
 
 socketclient: SocketClient.java
-	SocketClient.java
+	javac SocketClient.java
