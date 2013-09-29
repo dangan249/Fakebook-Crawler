@@ -1,25 +1,29 @@
 import java.net.URL ;
 import java.util.Map ;
+import java.util.HashMap ;
 
 public class HTTPRequest{
 
-	private URL url ;
+	private URL url ; // if users do not specify port, URL default it to 80
 	private String requestBody ;
 	private Map<String, String> headers ;
 
-	public HTTPRequest(){
-
+	public HTTPRequest( URL url ){
+		this( url, new HashMap<String,String>(), "" ) ;
 	}
 
 	public HTTPRequest( URL url, Map<String, String> headers){
-		this( url, headers, "" ) ;
+		this( url, headers , "" ) ;
 	}
 
 	public HTTPRequest( URL url, Map<String, String> headers, String requestBody){
+		
 		this.url = url ;
 		this.headers = headers ;
 		this.requestBody = requestBody ;
+
 	}
+
 
 	public void setURL(URL url){
 		this.url = url ;
@@ -45,7 +49,7 @@ public class HTTPRequest{
 		return this.headers ;
 	}
 
-		@Override
+	@Override
 	public String toString(){
 		return  "REQUEST :" + "\n" + 
 				"URL : " + url.toString() + "\n" 				

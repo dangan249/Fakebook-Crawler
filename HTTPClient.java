@@ -20,31 +20,14 @@ import java.net.URL ; // Only used to represent an URL, not used to handle any n
 // HTTP 1.0
 public class HTTPClient{
 
-	private static final int DEFAULT_PORT = 80 ;
 
 	private HTTPRequest request;
 	// without making the request this.response will be null
 	// ==> cause NullPointerException (not a bad way to inform client :) )
 	private HTTPResponse response ; 
-	private int port ;
 
-	// create an empty request
-	public HTTPClient( URL hostURL, int port ){
-		this( new HTTPRequest() , hostURL, port );		
+	public HTTPClient( ){
 	}
-
-
-	// create an empty request
-	public HTTPClient( URL hostURL ){
-		this( new HTTPRequest() , hostURL, DEFAULT_PORT );				
-	}
-
-	public HTTPClient( HTTPRequest request, URL hostURL, int port ){
-		this.request = request ;
-		this.request.setURL( hostURL ) ;
-		this.port = port ;		
-	}
-
 
 
 	// TODO
@@ -167,9 +150,13 @@ public class HTTPClient{
 	}
 
 	private void sendRequest( HTTPMethod method ) throws UnknownHostException, SocketException, IOException{
-		SocketClient sock = new SocketClient( this.request.getURL().getHost(), this.port,
-											  false) ;
+		
+		SocketClient sock = null ;
 		try{
+			int port = this.request.getURL().getPort() ;
+			sock = new SocketClient( this.request.getURL().getHost(), 
+									 port == -1 ? 80 : port,
+									 false ) ;
 			sock.connect() ;
 
 			String getMessage = serializeRequest( method ,this.request ) ;
@@ -178,6 +165,9 @@ public class HTTPClient{
 			InputStream input = null ;
 			input = sock.sendMessage( getMessage ) ;			
 			deserializeResponse( input ) ;			
+		}
+		catch(Exception ex ){
+			System.out.println( "Problem with sending request: " + ex.toString() ) ;
 		}
 		finally{
 			sock.disconnect() ;
@@ -249,31 +239,6 @@ public class HTTPClient{
 		}
 	}
 
-	public static void main(String args[]) throws MalformedURLException{
-
-
-		HTTPClient client = new HTTPClient( new URL("http://cs5700.ccs.neu.edu/accounts/login/?next=/fakebook/") ) ;
-		Map<String,String> headers = new HashMap<String,String>() ;
-		headers.put( "From" , "dang.an249@gmail.com" ) ;
-
-		client.getRequest().setHeaders( headers ) ;
-		client.getRequest().setRequestBody("csrfmiddlewaretoken=2b472c3026b53b168483fbddd92f8021&username=001121072&password=HSBRE7B8&next=%2Ffakebook%2F") ;
-		try{
-			client.doPost() ;
-			System.out.println( client.getRequest().toString() ) ;
-			System.out.println( client.getResponse().toString() ) ;
-		}
-		catch( UnknownHostException ex){
-			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
-		} 
-		catch( SocketException ex){
-			System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
-		}
-		catch( IOException ex){
-			System.out.println( ex.toString() ) ;
-		}
-
-	}
 
 }
 

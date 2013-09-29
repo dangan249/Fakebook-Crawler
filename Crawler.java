@@ -13,15 +13,20 @@ import java.util.Queue ;
 import java.util.Map ;
 import java.util.HashMap ;
 
+import java.net.UnknownHostException ;
+import java.net.SocketException ;
+import java.net.MalformedURLException;
+import java.io.IOException ;
 
 import java.net.URL ;
+
 public class Crawler {
 
 	private HTTPClient client ;
 	private String id ;
 	private String password ;
-	private URL rootURL = new URL("http://cs5700.ccs.neu.edu/") ;
-	private URL logInURL = new URL("http://cs5700.ccs.neu.edu/accounts/login/?next=/fakebook/")
+	private URL rootURL ;
+	private URL logInURL ;
 	private Set<URL> visitedURL ;
 	private Queue<URL> frontierURL ;
 	private List<String> secretFlags ;
@@ -30,10 +35,17 @@ public class Crawler {
 	public Crawler( String id, String password ){
 		this.id = id ;
 		this.password = password ;
-		this.HTTPClient = new HTTPClient() ;
+		this.client = new HTTPClient() ;
 		this.visitedURL = new HashSet<URL>() ;
 		this.frontierURL = new LinkedList<URL>() ;
-		this.cookies = new HashMap<URL>() ;
+		this.cookies = new HashMap<String,String>() ;
+		try{
+			this.rootURL = new URL("http://cs5700.ccs.neu.edu/")  ;
+			this.logInURL = new URL("http://cs5700.ccs.neu.edu/accounts/login/?next=/fakebook/") ;
+		}
+		catch (MalformedURLException ex){
+			throw new RuntimeException( "Internal Crawler's error " + ex.toString() ) ;
+		}
 	}
 
 	// TODO
@@ -41,6 +53,34 @@ public class Crawler {
 	// side-effect: change this.cookies
 	//              and propably this.visitedURL, this.frontierURL, and this.secretFlags 
 	public void login(){
+
+		
+		try{
+
+			HTTPRequest request = new HTTPRequest( this.logInURL ) ;
+
+			Map<String,String> headers = new HashMap<String,String>() ;
+			headers.put( "From" , "dang.an249@gmail.com" ) ;
+			request.setHeaders( headers ) ;
+
+			this.client.setRequest( request ) ;
+			// get the login page with its token
+
+			client.doGet() ;			
+			System.out.println( client.getRequest().toString() ) ;
+			System.out.println( client.getResponse().toString() ) ;
+
+
+		}
+		catch( UnknownHostException ex){
+			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
+		} 
+		catch( SocketException ex){
+			System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
+		}
+		catch( IOException ex){
+			System.out.println( ex.toString() ) ;
+		}
 
 	}
 
@@ -85,14 +125,14 @@ public class Crawler {
 		return "" ;
 	}
 
-	public void static main(String args[]){
+	public static void main(String args[]){
 
 		Crawler crawler = new Crawler( args[0], args[1]) ;
 
 		crawler.login() ;
 
-		crawler.crawl() ;
+		//crawler.crawl() ;
 
-		crawler.printSecretKeys() ;
+		//crawler.printSecretKeys() ;
 	}
 }
