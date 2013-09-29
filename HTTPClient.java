@@ -69,7 +69,7 @@ public class HTTPClient{
 	// TODO
 	// parse the entire response message to create an HTTPResponse
 	// side-effect: populate this.response
-	private void deserializeResponse( InputStream input ) throws RuntimeException, IOException{
+	private void deserializeResponse( InputStream input, Map<String,String> cookies ) throws RuntimeException, IOException{
 		
 
 		BufferedReader reader = null ;
@@ -122,22 +122,31 @@ public class HTTPClient{
 
 			
 
-		// PARSING HEADERS
+		// PARSING HEADERS	
 		Map<String,String> headers = new HashMap<String,String>() ;
-
+		
 		String line = reader.readLine() ;
+		
 		while( line != null && !line.isEmpty() ){
 			int colonIndex = line.indexOf( ':' ) ;
 			if( colonIndex < 0 ) break ; // this may signal the end of headers or server just mess up :)
 			
-			headers.put( line.substring( 0, colonIndex ).trim() , 
-						 line.substring( ++colonIndex ).trim() ) ;
+			String tempkey = line.substring( 0, colonIndex ).trim();
+			String tempvalue = line.substring( ++colonIndex ).trim();
+			if (tempkey.equals("Set-Cookie")) {
+				int equalIndex = tempvalue.indexOf( '=' ) ;
+				int semicolonIndex = tempvalue.indexOf( ';' ) ;
+				cookies.put( tempvalue.substring( 0, equalIndex ) , 
+						 tempvalue.substring( equalIndex+1 , semicolonIndex) ) ;
+			}
+			else
+				headers.put(tempkey, tempvalue);			
 
 			line = reader.readLine() ;
 		}
 
 		this.response.setHeaders( headers ) ;
-
+		System.out.println(cookies.toString());
 		// PARSING BODY
 		StringBuilder builder = new StringBuilder() ;
 		while( (line = reader.readLine() ) != null ){
@@ -149,7 +158,7 @@ public class HTTPClient{
 		// FINISH POPULATING this.response 
 	}
 
-	private void sendRequest( HTTPMethod method ) throws UnknownHostException, SocketException, IOException{
+	private void sendRequest( HTTPMethod method, Map<String,String> cookies ) throws UnknownHostException, SocketException, IOException{
 		
 		SocketClient sock = null ;
 		try{
@@ -164,7 +173,7 @@ public class HTTPClient{
 			
 			InputStream input = null ;
 			input = sock.sendMessage( getMessage ) ;			
-			deserializeResponse( input ) ;			
+			deserializeResponse( input , cookies) ;			
 		}
 		catch(Exception ex ){
 			System.out.println( "Problem with sending request: " + ex.toString() ) ;
@@ -175,9 +184,9 @@ public class HTTPClient{
 
 	}
 
-	public void doGet() throws UnknownHostException, SocketException, IOException{
+	public void doGet(Map<String,String> cookies) throws UnknownHostException, SocketException, IOException{
 		
-		sendRequest( HTTPMethod.GET ) ;
+		sendRequest( HTTPMethod.GET, cookies ) ;
 		
 	}
 
@@ -185,9 +194,9 @@ public class HTTPClient{
 
 	}
 
-	public void doPost() throws UnknownHostException, SocketException, IOException{
+	public void doPost(Map<String,String> cookies) throws UnknownHostException, SocketException, IOException{
 
-		sendRequest( HTTPMethod.POST ) ;
+		sendRequest( HTTPMethod.POST, cookies ) ;
 	}
 
 	public void doPostWithRedirect(){

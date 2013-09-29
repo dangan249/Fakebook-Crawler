@@ -24,6 +24,21 @@ public class HTTPRequest{
 
 	}
 
+	public void addCookies(Map<String, String> cookies) {
+		String key = "Cookie";
+		String value = new String("empty");
+		if (cookies.containsKey("csrftoken") && cookies.containsKey("sessionid")) {
+			value = new String("csrftoken="+cookies.get("csrftoken")+"; sessionid="+cookies.get("sessionid"));
+			System.out.println("both");
+		}
+		else if (cookies.containsKey("csrftoken")) {
+			value = new String("csrftoken="+cookies.get("csrftoken"));
+		}
+		else if (cookies.containsKey("sessionid")) {
+			value = new String("sessionid="+cookies.get("sessionid"));
+		}
+		this.headers.put(key, value);
+	}
 
 	public void setURL(URL url){
 		this.url = url ;
