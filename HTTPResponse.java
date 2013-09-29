@@ -6,6 +6,7 @@ public class HTTPResponse{
 	private URL url ;
 	private String responseBody ;
 	private Map<String, String> headers ;
+	private Map<String, String> cookies ;
 	private HTTPClient.StatusCode code ;
 
 	public void setURL(URL url){
@@ -40,6 +41,13 @@ public class HTTPResponse{
 		return this.headers ;
 	}
 
+	public void setCookies(Map<String, String> cookies){
+		this.cookies = cookies ;
+	}
+
+	public Map<String, String>  getCookies(){
+		return this.cookies ;
+	}
 
 	@Override
 	public String toString(){
