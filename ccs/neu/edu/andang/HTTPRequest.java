@@ -2,6 +2,8 @@ package ccs.neu.edu.andang ;
 
 import java.net.URL ;
 import java.util.Map ;
+import java.util.Collection ;
+
 import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ; 
 import java.lang.StringBuilder ;
@@ -51,6 +53,48 @@ public class HTTPRequest{
 
 		this.headers.put( key, builder.toString() );
 
+	}
+
+	// create the entire HTTP 1.0 message from this HTTPRequest
+	public String serializeRequest( HTTPClient.HTTPMethod method ){
+		// give StringBuilder some initial capacity will save time if the 
+		// request is big
+		StringBuilder builder = new StringBuilder(112) ;
+
+		// BUILDING FIRST LINE 
+		builder.append( method.value() ) ;
+		builder.append( " " ) ;
+		String path = this.getURL().getPath() ;
+		builder.append(  path == "" ? "/" : path ) ; 
+		builder.append( " " ) ;
+		builder.append( "HTTP/1.0\r\n" ) ;
+
+
+		// BUILDING HEADERS 
+		Multimap<String,String> headers = this.getHeaders() ;
+
+		for( String key : headers.keySet() ){
+
+			Collection<String> values =  headers.get( key ) ;
+
+			for( String value : values ){
+
+				builder.append( key ) ;
+				builder.append( ":" ) ;
+				builder.append( value ) ;
+				builder.append( "\r\n" ) ;				
+
+			}
+
+		}
+ 
+		builder.append( "\r\n" ) ;
+
+		if( method == HTTPClient.HTTPMethod.POST ){
+			builder.append( this.getRequestBody() ) ;
+		}	
+
+		return builder.toString() ;
 	}
 
 	public void setURL(URL url){

@@ -17,7 +17,6 @@ import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ; 
 import java.util.Map ;
 import java.util.HashMap ;
-import java.util.Collection ;
 import java.util.Iterator ;
 import java.lang.StringBuilder ;
 import java.net.URL ; // Only used to represent an URL, not used to handle any networking activities
@@ -32,51 +31,6 @@ public class HTTPClient{
 	private HTTPResponse response ; 
 
 	public HTTPClient( ){
-	}
-
-
-	// TODO
-	// create the entire HTTP 1.0 message from the given HTTPRequest
-	// so this.sock can use it
-	private String serializeRequest( HTTPMethod method, HTTPRequest request){
-		// give StringBuilder some initial capacity will save time if the 
-		// request is big
-		StringBuilder builder = new StringBuilder(112) ;
-
-		// BUILDING FIRST LINE 
-		builder.append( method.value() ) ;
-		builder.append( " " ) ;
-		String path = request.getURL().getPath() ;
-		builder.append(  path == "" ? "/" : path ) ; 
-		builder.append( " " ) ;
-		builder.append( "HTTP/1.0\r\n" ) ;
-
-
-		// BUILDING HEADERS 
-		Multimap<String,String> headers = request.getHeaders() ;
-
-		for( String key : headers.keySet() ){
-
-			Collection<String> values =  headers.get( key ) ;
-
-			for( String value : values ){
-
-				builder.append( key ) ;
-				builder.append( ":" ) ;
-				builder.append( value ) ;
-				builder.append( "\r\n" ) ;				
-
-			}
-
-		}
- 
-		builder.append( "\r\n" ) ;
-
-		if( method == HTTPMethod.POST ){
-			builder.append( request.getRequestBody() ) ;
-		}	
-
-		return builder.toString() ;
 	}
 
 	
@@ -190,7 +144,7 @@ public class HTTPClient{
 									 false ) ;
 			sock.connect() ;
 
-			String getMessage = serializeRequest( method ,this.request ) ;
+			String getMessage = this.request.serializeRequest( method ) ;
 			
 			InputStream input = null ;
 			input = sock.sendMessage( getMessage ) ;			
@@ -223,32 +177,35 @@ public class HTTPClient{
 	public void doPostWithRedirect()  throws UnknownHostException, SocketException, IOException{
 
 		sendRequest( HTTPMethod.POST ) ;
-		Map<String, String> cookies = this.request.getCookies() ;
-		cookies.put("sessionid" , this.response.getCookies().get("sessionid") ) ; // GRAB the new session ID
-		this.request.getHeaders().removeAll("Content-Length") ;
-		this.request.getHeaders().removeAll("Content-Type") ;
-		this.request.getHeaders().removeAll("Cookie") ;
 
-		Multimap<String,String> newHeaders = this.request.getHeaders() ;
+		if( response.getStatusCode() == StatusCode.MOVED_TEMPORARILY ||
+				response.getStatusCode() == StatusCode.MOVED_PERMANENTLY ){
+			Map<String, String> cookies = this.request.getCookies() ;
+			cookies.put("sessionid" , this.response.getCookies().get("sessionid") ) ; // GRAB the new session ID
+			this.request.getHeaders().removeAll("Content-Length") ;
+			this.request.getHeaders().removeAll("Content-Type") ;
+			this.request.getHeaders().removeAll("Cookie") ;
+
+			Multimap<String,String> newHeaders = this.request.getHeaders() ;
 
 
-		System.out.println( "\nREDIRECT RESPONSE: \n" ) ;
-		System.out.println( response.toString() ) ;
+			System.out.println( "\nREDIRECT RESPONSE: \n" ) ;
+			System.out.println( response.toString() ) ;
 
-		Iterator<String> iter = response.getHeaders().get("Location").iterator() ;
-		if ( iter.hasNext() ){
-			String newLocation  =  iter.next(); 
-			// CONSTRUCT a new HTTPRequest
-			this.request = new HTTPRequest( new URL( newLocation )  ) ;
-			request.setHeaders( newHeaders ) ;
-			request.addCookies( cookies ) ;
-			sendRequest( HTTPMethod.GET ) ;
+			Iterator<String> iter = response.getHeaders().get("Location").iterator() ;
+			if ( iter.hasNext() ){
+				String newLocation  =  iter.next(); 
+				// CONSTRUCT a new HTTPRequest
+				this.request = new HTTPRequest( new URL( newLocation )  ) ;
+				request.setHeaders( newHeaders ) ;
+				request.addCookies( cookies ) ;
+				sendRequest( HTTPMethod.GET ) ;
 
+			}
+			else{
+				throw new RuntimeException("Expect a redirect URL but found none.") ;
+			}
 		}
-		else{
-			throw new RuntimeException("Expect a redirect URL but found none.") ;
-		}
-
 	}
 
 	public HTTPRequest getRequest(){
