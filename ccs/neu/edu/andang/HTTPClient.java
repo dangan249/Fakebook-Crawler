@@ -165,6 +165,7 @@ public class HTTPClient{
 		
 	}
 
+	// Same comment as the function doPostWithRedirect()
 	public void doGetWithRedirect(){
 
 	}
@@ -174,6 +175,17 @@ public class HTTPClient{
 		sendRequest( HTTPMethod.POST ) ;
 	}
 
+
+	// Comment by Pedro: I don't like this implementation.
+	// Imagine a double redirect page: you access a page and that
+	// page redirects you to another page. This code wouldn't work.
+	// Instead use doPost() function and analyze in Crawler code
+	// along with the other codes.
+	// We can use this function in order to get the new URL to add
+	// to the queue.
+	
+	// By the way we only use POST in order to login, the rest of the
+	// requests are GET, and the login page won't redirect us.
 	public void doPostWithRedirect()  throws UnknownHostException, SocketException, IOException{
 
 		sendRequest( HTTPMethod.POST ) ;
