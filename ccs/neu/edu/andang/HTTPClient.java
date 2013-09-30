@@ -167,6 +167,36 @@ public class HTTPClient{
 
 	public void doGetWithRedirect(){
 
+		sendRequest( HTTPMethod.GET ) ;
+
+		if( response.getStatusCode() == StatusCode.MOVED_TEMPORARILY ||
+				response.getStatusCode() == StatusCode.MOVED_PERMANENTLY ){
+
+			Map<String, String> cookies = this.request.getCookies() ;
+			cookies.put("sessionid" , this.response.getCookies().get("sessionid") ) ; // GRAB the new session ID
+
+			this.request.getHeaders().removeAll("Cookie") ;
+
+			Multimap<String,String> newHeaders = this.request.getHeaders() ;
+
+
+			System.out.println( "\nREDIRECT RESPONSE: \n" ) ;
+			System.out.println( response.toString() ) ;
+
+			Iterator<String> iter = response.getHeaders().get("Location").iterator() ;
+			if ( iter.hasNext() ){
+				String newLocation  =  iter.next(); 
+				// CONSTRUCT a new HTTPRequest
+				this.request = new HTTPRequest( new URL( newLocation )  ) ;
+				request.setHeaders( newHeaders ) ;
+				request.addCookies( cookies ) ;
+				sendRequest( HTTPMethod.GET ) ;
+
+			}
+			else{
+				throw new RuntimeException("Expect a redirect URL but found none.") ;
+			}
+		}
 	}
 
 	public void doPost() throws UnknownHostException, SocketException, IOException{
