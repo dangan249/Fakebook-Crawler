@@ -1,5 +1,0 @@
-./ccs/neu/edu/andang/Crawler.java
-./ccs/neu/edu/andang/HTTPClient.java
-./ccs/neu/edu/andang/HTTPRequest.java
-./ccs/neu/edu/andang/HTTPResponse.java
-./ccs/neu/edu/andang/SocketClient.java
