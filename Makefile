@@ -1,16 +1,24 @@
-all: crawler httprequest httpclient httpresponse socketclient
+JFLAGS = -g
+JC = javac
+.SUFFIXES: .java .class
+.java.class:
+	$(JC) $(JFLAGS) -classpath "${CLASSPATH}:lib/*" $*.java
 
-crawler: Crawler.java
-	javac Crawler.java
+CLASSES = \
+        ./ccs/neu/edu/andang/Crawler.java \
+        ./ccs/neu/edu/andang/HTTPClient.java \
+        ./ccs/neu/edu/andang/HTTPRequest.java \
+        ./ccs/neu/edu/andang/HTTPResponse.java \
+        ./ccs/neu/edu/andang/SocketClient.java
 
-httprequest: HTTPRequest.java
-	javac HTTPRequest.java
+default: classes
 
-httpclient: HTTPClient.java
-	javac HTTPClient.java
+classes: $(CLASSES:.java=.class)
 
-httpresponse: HTTPResponse.java
-	javac HTTPResponse.java
+clean:
+	$(RM) ./ccs/neu/edu/andang/*.class
 
-socketclient: SocketClient.java
-	javac SocketClient.java
+
+javac -classpath "${CLASSPATH}:lib/*" @sources_list.txt
+
+

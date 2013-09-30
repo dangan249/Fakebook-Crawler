@@ -108,21 +108,11 @@ public class Crawler {
 			request.addCookies( this.cookies ) ;
 
 			client.setRequest( request ) ;
+			System.out.println( client.getRequest().toString() ) ;
 
 			client.doPostWithRedirect() ;
 			System.out.println( client.getResponse().toString() ) ;
-			
-			/*
-			// Second request with the body specified and the cookies
-			String s1 = "csrfmiddlewaretoken=";
-			String s2 = this.cookies.get("csrftoken");
-			String s3 = "&username=001908844&password=YEN05M01&next=%2Ffakebook%2F";
-			String body = new String(s1+s2+s3);
-			request.setRequestBody(body);
-			request.addCookies(this.cookies);
-			//System.out.println(headers.toString());
-			client.doPost(cookies) ;
-			*/
+
 		}
 		catch( UnknownHostException ex){
 			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;

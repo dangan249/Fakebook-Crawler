@@ -1,8 +1,8 @@
-#!/bin/tcsh
+#!/bin/bash
 
-#  java -cp "${CLASSPATH}:lib/*" ccs.neu.edu.andang.Crawler 001121072 abc
-if ($#argv == 2) then
-	java Crawler $1 $2
+if [ $# -eq 2 ] 
+then
+	java -cp "${CLASSPATH}:lib/*" ccs.neu.edu.andang.Crawler $1 $2
 else
 	echo "Usage: ./webcrawler [username] [password]"
-endif
+fi

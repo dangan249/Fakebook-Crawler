@@ -27,9 +27,6 @@ public class HTTPRequest{
 	public void addCookies(Map<String, String> cookies) {
 
 		this.cookies = cookies ;
-		System.out.println("===================") ;
-		System.out.println( cookies.toString() ) ;
-		System.out.println("===================") ;
 
 		String key = "Cookie";
 		StringBuilder builder = new StringBuilder() ;
