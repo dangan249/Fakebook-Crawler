@@ -33,7 +33,7 @@ public class Crawler {
 	private String password ;
 	private URL rootURL ;
 	private URL logInURL ;
-	private Set<URL> visitedURL ;
+	private Set<String> visitedURL ;
 	private Queue<URL> frontierURL ;
 	private List<String> secretFlags ;
 	private Map<String, String> cookies ;
@@ -42,7 +42,7 @@ public class Crawler {
 		this.id = id ;
 		this.password = password ;
 		this.client = new HTTPClient() ;
-		this.visitedURL = new HashSet<URL>() ;
+		this.visitedURL = new HashSet<String>() ;
 		this.frontierURL = new LinkedList<URL>() ;
 		this.cookies = new HashMap<String,String>() ;
 		try{
@@ -179,7 +179,7 @@ public class Crawler {
 	// TODO
 	// return true if we already visit this link
 	private boolean URLVisited(URL u){
-		return false ;
+		return visitedURL.contains(u.getPath());
 	}
 
 	// TODO
