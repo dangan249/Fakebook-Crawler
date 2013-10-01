@@ -201,16 +201,17 @@ public class Crawler {
 	private void parseHTML(String body) {
 		Document doc = Jsoup.parse(body);
 		Element htmlBody = doc.body();
-		Elements flags = htmlBody.getElementsByTag("h2 class='secret_flag' style=\"color:red\"");
+		Elements flags = htmlBody.getElementsByTag("h2");
 		for (int i = 0; i < flags.size(); ++i) {
 			Element flag = flags.get(i);
-			System.out.println(flag.id().substring(6,70));
+			if (flag.text().substring(0,6).equals("FLAG: "))
+				System.out.println(flag.text().substring(6,70));
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
-		for (int i = 0; i < flags.size(); ++i) {
+		for (int i = 0; i < urls.size(); ++i) {
 			Element url = urls.get(i);
-			addURL(url.id().substring(6,url.id().length()-2));
-			System.out.println(url.id().substring(6,url.id().length()-2));
+			int index = url.toString().indexOf( '>' ) ;
+			System.out.println(url.toString().substring(9,index-1));
 		}
 	}
 	
@@ -226,7 +227,7 @@ public class Crawler {
 			// Relative URL
 			if (s.charAt(0) == '/')
 				site = new URL(rootURL, s);
-			// Ful path
+			// Full path
 			else
 				site = new URL(s);
 		} catch (MalformedURLException ex){
@@ -263,12 +264,10 @@ public class Crawler {
 	}
 
 	public static void main(String args[]){
-
 		Crawler crawler = new Crawler( args[0], args[1]) ;
 
 		crawler.login() ;
 
 		crawler.crawl() ;
-
 	}
 }
