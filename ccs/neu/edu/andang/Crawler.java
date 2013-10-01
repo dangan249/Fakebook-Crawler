@@ -189,7 +189,7 @@ public class Crawler {
 		URL site = getFullURL(s);
 		if (approveURL(site)) {
 			if (URLVisited(site)) {
-				frontierURL(site);
+				frontierURL.add(site);
 			}
 		}
 	}
