@@ -145,6 +145,27 @@ public class Crawler {
 
 	}
 
+	// Returns the URL including the full path
+	// Example: "/fakebook/pedro" returns:
+	//			http://cs5700.ccs.neu.edu/fakebook/pedro
+	//
+	//			"http://cs5700.ccs.neu.edu/fakebook/pedro" returns:
+	//			http://cs5700.ccs.neu.edu/fakebook/pedro
+	private URL getFullURL(String s) {
+		URL site;
+		try {
+			// Relative URL
+			if (s.charAt(0) == '/')
+				site = new URL(rootURL, s);
+			// Ful path
+			else
+				site = new URL(s);
+		} catch (MalformedURLException ex){
+			throw new RuntimeException( "Could not parse URL " + ex.toString() ) ;
+		}
+		return site;
+	}
+
 	// TODO
 	// return true if we already visit this link
 	private boolean URLVisited(URL u){
