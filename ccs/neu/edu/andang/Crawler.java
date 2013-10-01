@@ -211,7 +211,7 @@ public class Crawler {
 		for (int i = 0; i < urls.size(); ++i) {
 			Element url = urls.get(i);
 			int index = url.toString().indexOf( '>' ) ;
-			System.out.println(url.toString().substring(9,index-1));
+			addURL(url.toString().substring(9,index-1));
 		}
 	}
 	
