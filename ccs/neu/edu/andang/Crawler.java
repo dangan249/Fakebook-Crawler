@@ -167,8 +167,13 @@ public class Crawler {
 			// URL moved, add new URL to the queue
 			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
 						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
-				// String newURL = client.getResponse().getHeaders().get("Location");
-				// addURL(newURL);
+				Iterator<String> iter = client.getResponse().getHeaders.get("Location").iterator();
+				if (iter.hasNext()) {
+					String newURL = iter.next();
+					addURL(newURL);
+				}
+				else
+					throw new RuntimeException("Expect a redirect URL but found none.") ;
 			}
 			
 			// Everything OK, parse HTML, find keys and add URLs
