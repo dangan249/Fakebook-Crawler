@@ -80,9 +80,9 @@ public class Crawler {
 			client.doGet() ; 
 
 
-			System.out.println( client.getRequest().toString() ) ;
-			System.out.println( client.getResponse().toString() ) ;
-			System.out.println("===================") ;
+			//System.out.println( client.getRequest().toString() ) ;
+			//System.out.println( client.getResponse().toString() ) ;
+			//System.out.println("===================") ;
 
 			this.cookies = client.getResponse().getCookies() ;
 
@@ -113,10 +113,13 @@ public class Crawler {
 			request.addCookies( this.cookies ) ;
 
 			client.setRequest( request ) ;
-			System.out.println( client.getRequest().toString() ) ;
+			//System.out.println( client.getRequest().toString() ) ;
 
 			client.doPostWithRedirect() ;
-			System.out.println( client.getResponse().toString() ) ;
+			//System.out.println( client.getResponse().toString() ) ;
+			
+			// First site added
+			addURL(HOST);
 
 		}
 		catch( UnknownHostException ex){
@@ -138,56 +141,58 @@ public class Crawler {
 		// check to see if cookies is set otherwise throw error
 
 		// make the GET call
-		URL site = frontierURL.remove();;
-		HTTPRequest request;
-		try {
-			request = new HTTPRequest( site ) ;
-			Multimap<String,String> headers = HashMultimap.create() ;
-			headers.put( "From" , "dang.an249@gmail.com" ) ;
-			request.setHeaders( headers ) ;
-			request.addCookies( this.cookies ) ;
-			this.client.setRequest( request ) ;
-			client.doGet() ;
-		}
-		catch( UnknownHostException ex){
-			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
-		} 
-		catch( SocketException ex){
-			System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
-		}
-		catch( IOException ex){
-			System.out.println( ex.toString() ) ;
-		}
+		while (!frontierURL.isEmpty()) {
+			URL site = frontierURL.remove();
+			HTTPRequest request;
+			try {
+				request = new HTTPRequest( site ) ;
+				Multimap<String,String> headers = HashMultimap.create() ;
+				headers.put( "From" , "dang.an249@gmail.com" ) ;
+				request.setHeaders( headers ) ;
+				request.addCookies( this.cookies ) ;
+				this.client.setRequest( request ) ;
+				client.doGet() ;
+			}
+			catch( UnknownHostException ex){
+				System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
+			} 
+			catch( SocketException ex){
+				System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
+			}
+			catch( IOException ex){
+				System.out.println( ex.toString() ) ;
+			}
 		
-		HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
-		// If there is no permanent error
-		if (stat != HTTPClient.StatusCode.BAD_REQUEST &&
-				stat != HTTPClient.StatusCode.FORBIDDEN) {
+			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
+			// If there is no permanent error
+			if (stat != HTTPClient.StatusCode.BAD_REQUEST &&
+					stat != HTTPClient.StatusCode.FORBIDDEN) {
 			
-			// Temporal error, put the URL back in the queue
-			if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
-				frontierURL.add(site);
-			}
-			
-			// URL moved, add new URL to the queue
-			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
-						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
-				Iterator<String> iter = client.getResponse().getHeaders().get("Location").iterator();
-				if (iter.hasNext()) {
-					String newURL = iter.next();
-					addURL(newURL);
+				// Temporal error, put the URL back in the queue
+				if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
+					frontierURL.add(site);
 				}
-				else
-					throw new RuntimeException("Expect a redirect URL but found none.") ;
-			}
 			
-			// Everything OK, parse HTML, find keys and add URLs
-			else if (stat == HTTPClient.StatusCode.OK) {
-				String htmlBody = client.getResponse().getResponseBody() ;
-				parseHTML(htmlBody);
-			}
-			else {
-				System.out.println("Unknown Status Code");
+				// URL moved, add new URL to the queue
+				else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
+							stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
+					Iterator<String> iter = client.getResponse().getHeaders().get("Location").iterator();
+					if (iter.hasNext()) {
+						String newURL = iter.next();
+						addURL(newURL);
+					}
+					else
+						throw new RuntimeException("Expect a redirect URL but found none.") ;
+				}
+			
+				// Everything OK, parse HTML, find keys and add URLs
+				else if (stat == HTTPClient.StatusCode.OK) {
+					String htmlBody = client.getResponse().getResponseBody() ;
+					parseHTML(htmlBody);
+				}
+				else {
+					System.out.println("Unknown Status Code");
+				}
 			}
 		}
 	}
@@ -263,7 +268,7 @@ public class Crawler {
 
 		crawler.login() ;
 
-		//crawler.crawl() ;
+		crawler.crawl() ;
 
 	}
 }
