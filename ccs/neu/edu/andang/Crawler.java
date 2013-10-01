@@ -14,6 +14,7 @@ import java.util.HashSet ;
 import java.util.Queue ;
 import java.util.Map ;
 import java.util.HashMap ;
+import java.util.Iterator ;
 import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ;
 
@@ -125,7 +126,6 @@ public class Crawler {
 
 	}
 
-	// TODO
 	// crawl the Fakebook
 	// side-effect: modify this.visitedURL, this.frontierURL, this.secretFlags
 	public void crawl(){
@@ -167,7 +167,7 @@ public class Crawler {
 			// URL moved, add new URL to the queue
 			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
 						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
-				Iterator<String> iter = client.getResponse().getHeaders.get("Location").iterator();
+				Iterator<String> iter = client.getResponse().getHeaders().get("Location").iterator();
 				if (iter.hasNext()) {
 					String newURL = iter.next();
 					addURL(newURL);
@@ -238,22 +238,6 @@ public class Crawler {
 				frontierURL.add(site);
 			}
 		}
-	}
-
-	// Remove this function: we will print the
-	// Secret Keys when while we find them,
-	// and we will exit the program when
-	// we have all of them
-	//public void printSecretKeys(){}
-
-	// TODO
-	public String getSessionCookieName(){
-		return "" ;
-	}
-
-	// TODO
-	public String getSessionCookieValue(){
-		return "" ;
 	}
 
 	public static void main(String args[]){
