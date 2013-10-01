@@ -54,7 +54,6 @@ public class Crawler {
 		}
 	}
 
-	// TODO
 	// log in Fakebook and get session + csrf cookies  
 	// side-effect: change this.cookies
 	//              and propably this.visitedURL, this.frontierURL, and this.secretFlags 
@@ -134,17 +133,60 @@ public class Crawler {
 		// check to see if cookies is set otherwise throw error
 
 		// make the GET call
-
-		// HTTP client going to handle any kind redirect for you and give back the correct
-		// response
-		// so only deal with 403 and 500 here
-
-		// parse the HTML to:
-		// -- find the keys
-		// -- enqueue new frontier URL (make sure you do not have duplicates)
-
+		URL site = frontierURL.remove();;
+		HTTPRequest request;
+		try {
+			request = new HTTPRequest( site ) ;
+			Multimap<String,String> headers = HashMultimap.create() ;
+			headers.put( "From" , "dang.an249@gmail.com" ) ;
+			request.setHeaders( headers ) ;
+			request.addCookies( this.cookies ) ;
+			this.client.setRequest( request ) ;
+			client.doGet() ;
+		}
+		catch( UnknownHostException ex){
+			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
+		} 
+		catch( SocketException ex){
+			System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
+		}
+		catch( IOException ex){
+			System.out.println( ex.toString() ) ;
+		}
+		
+		HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
+		// If there is no permanent error
+		if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
+				stat == HTTPClient.StatusCode.FORBIDDEN) {
+			
+			// Temporal error, put the URL back in the queue
+			if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
+				frontierURL.add(site);
+			}
+			
+			// URL moved, add new URL to the queue
+			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
+						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
+				// String newURL = client.getResponse().getHeaders().get("Location");
+				// addURL(newURL);
+			}
+			
+			// Everything OK, parse HTML, find keys and add URLs
+			else if (stat == HTTPClient.StatusCode.OK) {
+				String htmlBody = client.getResponse().getResponseBody() ;
+				parseHTML(htmlBody);
+			}
+			else {
+				System.out.println("Unknown Status Code");
+			}
+		}
 	}
-
+	
+	// Add URLs and get keys
+	private void parseHTML(String body) {
+	
+	}
+	
 	// Returns the URL including the full path
 	// Example: "/fakebook/pedro" returns:
 	//			http://cs5700.ccs.neu.edu/fakebook/pedro
@@ -176,7 +218,6 @@ public class Crawler {
 			return false;
 	}
 
-	// TODO
 	// return true if we already visit this link
 	private boolean URLVisited(URL u){
 		return visitedURL.contains(u.getPath());
@@ -194,7 +235,6 @@ public class Crawler {
 		}
 	}
 
-	// TODO
 	// Remove this function: we will print the
 	// Secret Keys when while we find them,
 	// and we will exit the program when
