@@ -234,7 +234,7 @@ public class Crawler {
 				site = new URL(s);
 			// If is a mailto return unapprovedURL
 			else {
-				sire = new URL("http://www.google.com");
+				site = new URL("http://www.google.com");
 			}
 		} catch (MalformedURLException ex){
 			throw new RuntimeException( "Could not parse URL " + ex.toString() ) ;
