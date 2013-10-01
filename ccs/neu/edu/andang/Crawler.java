@@ -156,8 +156,8 @@ public class Crawler {
 		
 		HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
 		// If there is no permanent error
-		if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
-				stat == HTTPClient.StatusCode.FORBIDDEN) {
+		if (stat != HTTPClient.StatusCode.BAD_REQUEST &&
+				stat != HTTPClient.StatusCode.FORBIDDEN) {
 			
 			// Temporal error, put the URL back in the queue
 			if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
