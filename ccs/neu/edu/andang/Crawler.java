@@ -228,8 +228,14 @@ public class Crawler {
 			if (s.charAt(0) == '/')
 				site = new URL(rootURL, s);
 			// Full path
-			else
+			// This way we remove the mailto urls,
+			// since they are also detected as urls
+			else if (s.charAt(0) == 'h')
 				site = new URL(s);
+			// If is a mailto return unapprovedURL
+			else {
+				sire = new URL("http://www.google.com");
+			}
 		} catch (MalformedURLException ex){
 			throw new RuntimeException( "Could not parse URL " + ex.toString() ) ;
 		}
