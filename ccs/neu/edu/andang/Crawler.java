@@ -18,6 +18,11 @@ import java.util.Iterator ;
 import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ;
 
+import org.jsoup.nodes.Document;
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
+
 import java.net.UnknownHostException ;
 import java.net.SocketException ;
 import java.net.MalformedURLException;
@@ -189,7 +194,19 @@ public class Crawler {
 	
 	// Add URLs and get keys
 	private void parseHTML(String body) {
-	
+		Document doc = Jsoup.parse(body);
+		Element htmlBody = doc.body();
+		Elements flags = htmlBody.getElementsByTag("h2 class='secret_flag' style=\"color:red\"");
+		for (int i = 0; i < flags.size(); ++i) {
+			Element flag = flags.get(i);
+			System.out.println(flag.id().substring(6,70));
+		}
+		Elements urls = htmlBody.getElementsByTag("a");
+		for (int i = 0; i < flags.size(); ++i) {
+			Element url = urls.get(i);
+			addURL(url.id().substring(6,url.id().length()-2));
+			System.out.println(url.id().substring(6,url.id().length()-2));
+		}
 	}
 	
 	// Returns the URL including the full path
