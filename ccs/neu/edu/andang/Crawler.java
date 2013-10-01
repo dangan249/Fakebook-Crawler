@@ -173,10 +173,11 @@ public class Crawler {
 	}
 
 	// TODO
-	// print to StdOut all keys in this.secretFlags
-	public void printSecretKeys(){
-		
-	}
+	// Remove this function: we will print the
+	// Secret Keys when while we find them,
+	// and we will exit the program when
+	// we have all of them
+	//public void printSecretKeys(){}
 
 	// TODO
 	public String getSessionCookieName(){
@@ -196,6 +197,5 @@ public class Crawler {
 
 		//crawler.crawl() ;
 
-		//crawler.printSecretKeys() ;
 	}
 }
