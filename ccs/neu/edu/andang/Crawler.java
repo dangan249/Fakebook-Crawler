@@ -181,6 +181,18 @@ public class Crawler {
 	private boolean URLVisited(URL u){
 		return visitedURL.contains(u.getPath());
 	}
+	
+	// Parses the string of a URL and
+	// adds it to the queue if not visited
+	// and approved website
+	private void addURL(String s) {
+		URL site = getFullURL(s);
+		if (approveURL(site)) {
+			if (URLVisited(site)) {
+				frontierURL(site);
+			}
+		}
+	}
 
 	// TODO
 	// Remove this function: we will print the
