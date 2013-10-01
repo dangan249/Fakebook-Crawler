@@ -166,6 +166,16 @@ public class Crawler {
 		return site;
 	}
 
+	// Checks if we can crawl this URL
+	private boolean approveURL(URL s) {
+		String shost = s.getHost();
+		String fakebook = this.rootURL.toString();
+		if (shost.equals(fakebook))
+			return true;
+		else
+			return false;
+	}
+
 	// TODO
 	// return true if we already visit this link
 	private boolean URLVisited(URL u){
