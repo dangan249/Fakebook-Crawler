@@ -147,7 +147,7 @@ public class Crawler {
 				System.out.println(sitesCrawled);
 			URL site = frontierURL.remove();
 			
-			System.out.print(site.toString());
+			//System.out.print(site.toString());
 			HTTPRequest request;
 			try {
 				request = new HTTPRequest( site ) ;
@@ -170,7 +170,7 @@ public class Crawler {
 			
 			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
 			// If there is no permanent error
-			System.out.println(stat);
+			//System.out.println(stat);
 			
 			
 			if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
@@ -209,6 +209,7 @@ public class Crawler {
 	private void parseHTML(String body) {
 		Document doc = Jsoup.parse(body);
 		Element htmlBody = doc.body();
+		Element htmlHead = doc.head();
 		Elements flags = htmlBody.getElementsByTag("h2");
 		for (int i = 0; i < flags.size(); ++i) {
 			Element flag = flags.get(i);
@@ -216,6 +217,15 @@ public class Crawler {
 				if (flag.text().substring(0,6).equals("FLAG: "))
 					System.out.println(flag.text().substring(6,70));
 					secretFlags.add(flag.text().substring(6,70));
+			}
+		}
+		Elements headFlags = htmlHead.getElementsByTag("h2");
+		for (int i = 0; i < headFlags.size(); ++i) {
+			Element headFlag = headFlags.get(i);
+			if (headFlag.text().length() > 70) {
+				if (headFlag.text().substring(0,6).equals("FLAG: "))
+					System.out.println(headFlag.text().substring(6,70));
+					secretFlags.add(headFlag.text().substring(6,70));
 			}
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
