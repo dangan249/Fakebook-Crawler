@@ -216,16 +216,14 @@ public class Crawler {
 		for (int i = 0; i < flags.size(); ++i) {
 			Element flag = flags.get(i);
 			if (flag.text().contains("FLAG")) {
-				System.out.println(flag.text().substring(6,70));
-				//secretFlags.add(flag.text().substring(6,70));
+				secretFlags.add(flag.text().substring(6,70));
 			}
 		}
 		Elements headFlags = htmlHead.getElementsByTag("h2");
 		for (int i = 0; i < headFlags.size(); ++i) {
 			Element headFlag = headFlags.get(i);
 			if (headFlag.text().contains("FLAG")) {
-				System.out.println(headFlag.text().substring(6,70));
-				//secretFlags.add(headFlag.text().substring(6,70));
+				secretFlags.add(headFlag.text().substring(6,70));
 			}
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
@@ -303,6 +301,8 @@ public class Crawler {
 		crawler.login() ;
 
 		crawler.crawl() ;
+		
+		crawler.printKeys();
 		
 		System.out.println(crawler.sitesCrawled);
 	}
