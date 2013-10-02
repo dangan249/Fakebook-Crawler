@@ -201,8 +201,8 @@ public class HTTPClient{
 			Multimap<String,String> newHeaders = this.request.getHeaders() ;
 
 
-			System.out.println( "\nREDIRECT RESPONSE: \n" ) ;
-			System.out.println( response.toString() ) ;
+			//System.out.println( "\nREDIRECT RESPONSE: \n" ) ;
+			//System.out.println( response.toString() ) ;
 
 			Iterator<String> iter = response.getHeaders().get("Location").iterator() ;
 			if ( iter.hasNext() ){
