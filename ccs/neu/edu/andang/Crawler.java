@@ -146,7 +146,7 @@ public class Crawler {
 			if (sitesCrawled%100 == 0)
 				System.out.println(sitesCrawled);
 			URL site = frontierURL.remove();
-			visitedURL.add(site.getPath());
+			
 			System.out.print(site.toString());
 			HTTPRequest request;
 			try {
@@ -180,7 +180,6 @@ public class Crawler {
 			// Temporal error, put the URL back in the queue
 			else if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
 				frontierURL.add(site);
-				visitedURL.remove(site.getPath());
 			}
 		
 			// URL moved, add new URL to the queue
@@ -276,6 +275,7 @@ public class Crawler {
 		if (approveURL(site)) {
 			if (!URLVisited(site)) {
 				frontierURL.add(site);
+				visitedURL.add(site.getPath());
 				//System.out.println(site.toString());
 			}
 		}
