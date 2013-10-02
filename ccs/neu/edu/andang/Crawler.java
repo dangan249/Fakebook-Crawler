@@ -141,7 +141,7 @@ public class Crawler {
 
 		// check to see if cookies is set otherwise throw error
 		// make the GET call
-		while (!frontierURL.isEmpty()) {
+		while ((!frontierURL.isEmpty()) && (secretFlags.size() < 5)) {
 			sitesCrawled++;
 			if (sitesCrawled%100 == 0)
 				System.out.println(sitesCrawled);
@@ -215,6 +215,7 @@ public class Crawler {
 			if (flag.text().length() > 70) {
 				if (flag.text().substring(0,6).equals("FLAG: "))
 					System.out.println(flag.text().substring(6,70));
+					secretFlags.add(flag.text().substring(6,70));
 			}
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
@@ -279,6 +280,11 @@ public class Crawler {
 				//System.out.println(site.toString());
 			}
 		}
+	}
+
+	private void printKeys() {
+		for (int i = 0; i < secretFlags.size(); ++i)
+			System.out.println(secretFlags.get(i));
 	}
 
 	public static void main(String args[]){
