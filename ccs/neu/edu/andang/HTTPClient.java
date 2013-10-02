@@ -166,7 +166,7 @@ public class HTTPClient{
 	}
 
 	// Same comment as the function doPostWithRedirect()
-	public void doGetWithRedirect(){
+	public void doGetWithRedirect() throws UnknownHostException, SocketException, IOException{
 
 		sendRequest( HTTPMethod.GET ) ;
 
