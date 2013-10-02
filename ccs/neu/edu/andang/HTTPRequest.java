@@ -37,6 +37,9 @@ public class HTTPRequest{
 		
 		// TODO: cookie can be Cookie: value1; value2; name1=value1
 		// this implementation cannot deal with that yet :(
+		
+		// Comment by Pedro: in the whole crawl there is only
+		// two cookies, so don't bother about other cookie formats
 
 		for( String cookieKey : cookies.keySet() ){
 

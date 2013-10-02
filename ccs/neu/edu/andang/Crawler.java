@@ -14,8 +14,14 @@ import java.util.HashSet ;
 import java.util.Queue ;
 import java.util.Map ;
 import java.util.HashMap ;
+import java.util.Iterator ;
 import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.Jsoup;
+import org.jsoup.select.Elements;
+import org.jsoup.nodes.Element;
 
 import java.net.UnknownHostException ;
 import java.net.SocketException ;
@@ -33,18 +39,20 @@ public class Crawler {
 	private String password ;
 	private URL rootURL ;
 	private URL logInURL ;
-	private Set<URL> visitedURL ;
+	private Set<String> visitedURL ;
 	private Queue<URL> frontierURL ;
 	private List<String> secretFlags ;
 	private Map<String, String> cookies ;
-
+	private int sitesCrawled;
+	
 	public Crawler( String id, String password ){
 		this.id = id ;
 		this.password = password ;
 		this.client = new HTTPClient() ;
-		this.visitedURL = new HashSet<URL>() ;
+		this.visitedURL = new HashSet<String>() ;
 		this.frontierURL = new LinkedList<URL>() ;
 		this.cookies = new HashMap<String,String>() ;
+		this.sitesCrawled = 0;
 		try{
 			this.rootURL = new URL( HOST )  ;
 			this.logInURL = new URL( LOG_IN_URL ) ;
@@ -54,7 +62,6 @@ public class Crawler {
 		}
 	}
 
-	// TODO
 	// log in Fakebook and get session + csrf cookies  
 	// side-effect: change this.cookies
 	//              and propably this.visitedURL, this.frontierURL, and this.secretFlags 
@@ -75,9 +82,9 @@ public class Crawler {
 			client.doGet() ; 
 
 
-			System.out.println( client.getRequest().toString() ) ;
-			System.out.println( client.getResponse().toString() ) ;
-			System.out.println("===================") ;
+			//System.out.println( client.getRequest().toString() ) ;
+			//System.out.println( client.getResponse().toString() ) ;
+			//System.out.println("===================") ;
 
 			this.cookies = client.getResponse().getCookies() ;
 
@@ -108,11 +115,13 @@ public class Crawler {
 			request.addCookies( this.cookies ) ;
 
 			client.setRequest( request ) ;
-			System.out.println( client.getRequest().toString() ) ;
+			//System.out.println( client.getRequest().toString() ) ;
 
 			client.doPostWithRedirect() ;
-			System.out.println( client.getResponse().toString() ) ;
-
+			//System.out.println( client.getResponse().toString() ) ;
+			//System.out.println("hitest");
+			// First site added
+			addURL(HOST);
 		}
 		catch( UnknownHostException ex){
 			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
@@ -126,55 +135,159 @@ public class Crawler {
 
 	}
 
-	// TODO
 	// crawl the Fakebook
 	// side-effect: modify this.visitedURL, this.frontierURL, this.secretFlags
 	public void crawl(){
 
 		// check to see if cookies is set otherwise throw error
-
 		// make the GET call
-
-		// HTTP client going to handle any kind redirect for you and give back the correct
-		// response
-		// so only deal with 403 and 500 here
-
-		// parse the HTML to:
-		// -- find the keys
-		// -- enqueue new frontier URL (make sure you do not have duplicates)
-
+		while (!frontierURL.isEmpty()) {
+			sitesCrawled++;
+			if (sitesCrawled%100 == 0)
+				System.out.println(sitesCrawled);
+			URL site = frontierURL.remove();
+			visitedURL.add(site.getPath());
+			System.out.print(site.toString());
+			HTTPRequest request;
+			try {
+				request = new HTTPRequest( site ) ;
+				Multimap<String,String> headers = HashMultimap.create() ;
+				headers.put( "From" , "dang.an249@gmail.com" ) ;
+				request.setHeaders( headers ) ;
+				request.addCookies( this.cookies ) ;
+				this.client.setRequest( request ) ;
+				client.doGet() ;
+			}
+			catch( UnknownHostException ex){
+				System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
+			} 
+			catch( SocketException ex){
+				System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
+			}
+			catch( IOException ex){
+				System.out.println( ex.toString() ) ;
+			}
+			
+			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
+			// If there is no permanent error
+			System.out.println(stat);
+			
+			
+			if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
+					stat == HTTPClient.StatusCode.FORBIDDEN) {
+				// do nothing
+			}
+			// Temporal error, put the URL back in the queue
+			else if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
+				frontierURL.add(site);
+				visitedURL.remove(site.getPath());
+			}
+		
+			// URL moved, add new URL to the queue
+			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
+						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
+				Iterator<String> iter = client.getResponse().getHeaders().get("Location").iterator();
+				if (iter.hasNext()) {
+					String newURL = iter.next();
+					addURL(newURL);
+				}
+				else
+					throw new RuntimeException("Expect a redirect URL but found none.") ;
+			}
+		
+			// Everything OK, parse HTML, find keys and add URLs
+			else if (stat == HTTPClient.StatusCode.OK) {
+				String htmlBody = client.getResponse().getResponseBody() ;
+				parseHTML(htmlBody);
+			}
+			else {
+				System.out.println("Unknown Status Code");
+			}
+		}
+	}
+	
+	// Add URLs and get keys
+	private void parseHTML(String body) {
+		Document doc = Jsoup.parse(body);
+		Element htmlBody = doc.body();
+		Elements flags = htmlBody.getElementsByTag("h2");
+		for (int i = 0; i < flags.size(); ++i) {
+			Element flag = flags.get(i);
+			if (flag.text().length() > 70) {
+				if (flag.text().substring(0,6).equals("FLAG: "))
+					System.out.println(flag.text().substring(6,70));
+			}
+		}
+		Elements urls = htmlBody.getElementsByTag("a");
+		for (int i = 0; i < urls.size(); ++i) {
+			Element url = urls.get(i);
+			int index = url.toString().indexOf( '>' ) ;
+			addURL(url.toString().substring(9,index-1));
+		}
+	}
+	
+	// Returns the URL including the full path
+	// Example: "/fakebook/pedro" returns:
+	//			http://cs5700.ccs.neu.edu/fakebook/pedro
+	//
+	//			"http://cs5700.ccs.neu.edu/fakebook/pedro" returns:
+	//			http://cs5700.ccs.neu.edu/fakebook/pedro
+	private URL getFullURL(String s) {
+		URL site;
+		try {
+			// Relative URL
+			if (s.charAt(0) == '/')
+				site = new URL(rootURL, s);
+			// Full path
+			// This way we remove the mailto urls,
+			// since they are also detected as urls
+			else if (s.charAt(0) == 'h')
+				site = new URL(s);
+			// If is a mailto return unapprovedURL
+			else {
+				site = new URL("http://www.google.com");
+			}
+		} catch (MalformedURLException ex){
+			throw new RuntimeException( "Could not parse URL " + ex.toString() ) ;
+		}
+		return site;
 	}
 
-	// TODO
+	// Checks if we can crawl this URL
+	private boolean approveURL(URL s) {
+		String shost = s.getHost();
+		String fakebook = this.rootURL.getHost().toString();
+		if (shost.equals(fakebook))
+			return true;
+		else
+			return false;
+	}
+
 	// return true if we already visit this link
 	private boolean URLVisited(URL u){
-		return false ;
+		return visitedURL.contains(u.getPath());
 	}
-
-	// TODO
-	// print to StdOut all keys in this.secretFlags
-	public void printSecretKeys(){
-		
-	}
-
-	// TODO
-	public String getSessionCookieName(){
-		return "" ;
-	}
-
-	// TODO
-	public String getSessionCookieValue(){
-		return "" ;
+	
+	// Parses the string of a URL and
+	// adds it to the queue if not visited
+	// and approved website
+	private void addURL(String s) {
+		URL site = getFullURL(s);
+		if (approveURL(site)) {
+			if (!URLVisited(site)) {
+				frontierURL.add(site);
+				//System.out.println(site.toString());
+			}
+		}
 	}
 
 	public static void main(String args[]){
-
 		Crawler crawler = new Crawler( args[0], args[1]) ;
 
 		crawler.login() ;
 
-		//crawler.crawl() ;
-
-		//crawler.printSecretKeys() ;
+		crawler.crawl() ;
+		
+		System.out.println(crawler.sitesCrawled);
 	}
 }
