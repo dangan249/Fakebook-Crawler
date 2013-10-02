@@ -43,7 +43,8 @@ public class Crawler {
 	private Queue<URL> frontierURL ;
 	private List<String> secretFlags ;
 	private Map<String, String> cookies ;
-
+	private int sitesCrawled;
+	
 	public Crawler( String id, String password ){
 		this.id = id ;
 		this.password = password ;
@@ -51,6 +52,7 @@ public class Crawler {
 		this.visitedURL = new HashSet<String>() ;
 		this.frontierURL = new LinkedList<URL>() ;
 		this.cookies = new HashMap<String,String>() ;
+		this.sitesCrawled = 0;
 		try{
 			this.rootURL = new URL( HOST )  ;
 			this.logInURL = new URL( LOG_IN_URL ) ;
@@ -117,7 +119,7 @@ public class Crawler {
 
 			client.doPostWithRedirect() ;
 			//System.out.println( client.getResponse().toString() ) ;
-			
+			//System.out.println("hitest");
 			// First site added
 			addURL(HOST);
 
@@ -139,10 +141,13 @@ public class Crawler {
 	public void crawl(){
 
 		// check to see if cookies is set otherwise throw error
-
 		// make the GET call
 		while (!frontierURL.isEmpty()) {
+			sitesCrawled++;
+			if (sitesCrawled%100 == 0)
+				System.out.println(sitesCrawled);
 			URL site = frontierURL.remove();
+			System.out.print(site.toString());
 			HTTPRequest request;
 			try {
 				request = new HTTPRequest( site ) ;
@@ -162,9 +167,10 @@ public class Crawler {
 			catch( IOException ex){
 				System.out.println( ex.toString() ) ;
 			}
-		
+			
 			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
 			// If there is no permanent error
+			System.out.println(stat);
 			if (stat != HTTPClient.StatusCode.BAD_REQUEST &&
 					stat != HTTPClient.StatusCode.FORBIDDEN) {
 			
@@ -188,6 +194,7 @@ public class Crawler {
 				// Everything OK, parse HTML, find keys and add URLs
 				else if (stat == HTTPClient.StatusCode.OK) {
 					String htmlBody = client.getResponse().getResponseBody() ;
+					frontierURL.add(site);
 					parseHTML(htmlBody);
 				}
 				else {
@@ -204,8 +211,10 @@ public class Crawler {
 		Elements flags = htmlBody.getElementsByTag("h2");
 		for (int i = 0; i < flags.size(); ++i) {
 			Element flag = flags.get(i);
-			if (flag.text().substring(0,6).equals("FLAG: "))
-				System.out.println(flag.text().substring(6,70));
+			if (flag.text().length() > 70) {
+				if (flag.text().substring(0,6).equals("FLAG: "))
+					System.out.println(flag.text().substring(6,70));
+			}
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
 		for (int i = 0; i < urls.size(); ++i) {
@@ -245,7 +254,7 @@ public class Crawler {
 	// Checks if we can crawl this URL
 	private boolean approveURL(URL s) {
 		String shost = s.getHost();
-		String fakebook = this.rootURL.toString();
+		String fakebook = this.rootURL.getHost().toString();
 		if (shost.equals(fakebook))
 			return true;
 		else
@@ -263,8 +272,9 @@ public class Crawler {
 	private void addURL(String s) {
 		URL site = getFullURL(s);
 		if (approveURL(site)) {
-			if (URLVisited(site)) {
+			if (!URLVisited(site)) {
 				frontierURL.add(site);
+				//System.out.println(site.toString());
 			}
 		}
 	}
@@ -275,5 +285,7 @@ public class Crawler {
 		crawler.login() ;
 
 		crawler.crawl() ;
+		
+		System.out.println(crawler.sitesCrawled);
 	}
 }
