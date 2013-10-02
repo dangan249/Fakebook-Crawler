@@ -122,7 +122,6 @@ public class Crawler {
 			//System.out.println("hitest");
 			// First site added
 			addURL(HOST);
-
 		}
 		catch( UnknownHostException ex){
 			System.out.println("Unable to connect to " + client.getRequest().getURL() + ". Unknown host" ) ;
@@ -147,6 +146,7 @@ public class Crawler {
 			if (sitesCrawled%100 == 0)
 				System.out.println(sitesCrawled);
 			URL site = frontierURL.remove();
+			visitedURL.add(site.getPath());
 			System.out.print(site.toString());
 			HTTPRequest request;
 			try {
@@ -171,35 +171,37 @@ public class Crawler {
 			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
 			// If there is no permanent error
 			System.out.println(stat);
-			if (stat != HTTPClient.StatusCode.BAD_REQUEST &&
-					stat != HTTPClient.StatusCode.FORBIDDEN) {
 			
-				// Temporal error, put the URL back in the queue
-				if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
-					frontierURL.add(site);
-				}
 			
-				// URL moved, add new URL to the queue
-				else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
-							stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
-					Iterator<String> iter = client.getResponse().getHeaders().get("Location").iterator();
-					if (iter.hasNext()) {
-						String newURL = iter.next();
-						addURL(newURL);
-					}
-					else
-						throw new RuntimeException("Expect a redirect URL but found none.") ;
+			if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
+					stat == HTTPClient.StatusCode.FORBIDDEN) {
+				// do nothing
+			}
+			// Temporal error, put the URL back in the queue
+			else if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
+				frontierURL.add(site);
+				visitedURL.remove(site.getPath());
+			}
+		
+			// URL moved, add new URL to the queue
+			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
+						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
+				Iterator<String> iter = client.getResponse().getHeaders().get("Location").iterator();
+				if (iter.hasNext()) {
+					String newURL = iter.next();
+					addURL(newURL);
 				}
-			
-				// Everything OK, parse HTML, find keys and add URLs
-				else if (stat == HTTPClient.StatusCode.OK) {
-					String htmlBody = client.getResponse().getResponseBody() ;
-					frontierURL.add(site);
-					parseHTML(htmlBody);
-				}
-				else {
-					System.out.println("Unknown Status Code");
-				}
+				else
+					throw new RuntimeException("Expect a redirect URL but found none.") ;
+			}
+		
+			// Everything OK, parse HTML, find keys and add URLs
+			else if (stat == HTTPClient.StatusCode.OK) {
+				String htmlBody = client.getResponse().getResponseBody() ;
+				parseHTML(htmlBody);
+			}
+			else {
+				System.out.println("Unknown Status Code");
 			}
 		}
 	}
