@@ -7,6 +7,7 @@ Project 2: Web Crawler
 Description
 ================================================================================
 This assignment is intended to familiarize you with the HTTP protocol. Students are required to implement the HTTP protocol themselvels without using any native HTTP client.
+
 The goal in this assignment is to implement a web crawler that gathers data from a fake social networking website that we have set up for you. 
 The site is available here: Fakebook.
 
@@ -34,9 +35,18 @@ Your web crawler must execute on the command line using the following syntax:
 
 There are a few key things that all web crawlers must do in order function:
 
+
 ---- Track the Frontier: As your crawler traverses Fakebook it will observe many URLs. Typically, these uncrawled URLs are stored in a queue, stack, or list until the crawler is ready to visit them. These uncrawled URLs are known as the frontier.
-    Watch Out for Loops: Your crawler needs to keep track of where it has been, i.e. the URLs that it has already crawled. Obviously, it isn't efficient to revisit the same pages over and over again. If your crawler does not keep track of where it has been, it will almost certainly enter an infinite loop. For example, if users A and B are friends on Fakebook, then that means A's page links to B, and B's page links to A. Unless the crawler is smart, it will ping-pong back and forth going A->B, B->A, A->B, B->A, ..., etc.
-    Only Crawl The Target Domain: Web pages may include links that point to arbitrary domains (e.g. a link on google.com that points to cnn.com). Your crawler should only traverse URLs that point to pages on cs5700.ccs.neu.edu. For example, it would be valid to crawl http://cs5700.ccs.neu.edu/fakebook/018912/, but it would not be valid to crawl http://www.facebook.com/018912/.
+    Watch Out for Loops: Your crawler needs to keep track of where it has been, i.e. the URLs that it has already crawled. Obviously, it isn't efficient to revisit the same pages over and over again. 
+    
+    If your crawler does not keep track of where it has been, it will almost certainly enter an infinite loop. 
+    
+    For example, if users A and B are friends on Fakebook, then that means A's page links to B, and B's page links to A. Unless the crawler is smart, it will ping-pong back and forth going A->B, B->A, A->B, B->A, ..., etc.
+    Only Crawl The Target Domain: Web pages may include links that point to arbitrary domains (e.g. a link on google.com that points to cnn.com). Your crawler should only traverse URLs that point to pages on cs5700.ccs.neu.edu. 
+    
+    For example, it would be valid to crawl http://cs5700.ccs.neu.edu/fakebook/018912/, but it would not be valid to crawl http://www.facebook.com/018912/.
+    
+    
     In order to build a successful web crawler, you will need to handle several different aspects of the HTTP protocol:
     
     HTTP GET - These requests are necessary for downloading HTML pages.
@@ -48,6 +58,7 @@ There are a few key things that all web crawlers must do in order function:
     403 - Forbidden and 404 - Not Found: Our web server may return these codes in order to trip up your crawler. In this case, your crawler should abandon the URL that generated the error code.
     500 - Internal Server Error: Our web server may randomly return this error code to your crawler. In this case, your crawler should re-try the request for the URL until the request is successful.
     I highly recommend the HTTP Made Really Easy tutorial as a starting place for students to learn about the HTTP protocol. Furthermore, the developer tools built-in to the Chrome browser, as well as the Firebug extension for Firefox, are both excellent tools for inspecting and understanding HTTP requests.
+
 
 ---- Logging in to Fakebook
   In order to write code that can successfully log-in to Fakebook, you will need to reverse engineer the HTML form on the log-in page. Students should carefully inspect the form's code, since it may not be as simple as it initially appears.
