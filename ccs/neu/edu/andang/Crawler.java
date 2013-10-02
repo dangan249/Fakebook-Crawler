@@ -215,20 +215,22 @@ public class Crawler {
 		Elements flags = htmlBody.getElementsByTag("h2");
 		for (int i = 0; i < flags.size(); ++i) {
 			Element flag = flags.get(i);
-			if (flag.text().length() > 70) {
+			System.out.println(flag.text());
+			/*if (flag.text().length() > 70) {
 				if (flag.text().substring(0,6).equals("FLAG: "))
 					System.out.println(flag.text().substring(6,70));
 					secretFlags.add(flag.text().substring(6,70));
-			}
+			}*/
 		}
 		Elements headFlags = htmlHead.getElementsByTag("h2");
 		for (int i = 0; i < headFlags.size(); ++i) {
 			Element headFlag = headFlags.get(i);
-			if (headFlag.text().length() > 70) {
+			System.out.println(headFlag.text());
+			/*if (headFlag.text().length() > 70) {
 				if (headFlag.text().substring(0,6).equals("FLAG: "))
 					System.out.println(headFlag.text().substring(6,70));
 					secretFlags.add(headFlag.text().substring(6,70));
-			}
+			}*/
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
 		for (int i = 0; i < urls.size(); ++i) {
