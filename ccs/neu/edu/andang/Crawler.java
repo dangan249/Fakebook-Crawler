@@ -139,7 +139,6 @@ public class Crawler {
 			
 			URL site = frontierURL.remove();
 			
-			System.out.print(site.toString());
 			HTTPRequest request;
 			try {
 				request = new HTTPRequest( site ) ;
@@ -270,7 +269,6 @@ public class Crawler {
 			if (!URLVisited(site)) {
 				frontierURL.add(site);
 				visitedURL.add(site.getPath());
-				//System.out.println(site.toString());
 			}
 		}
 	}
