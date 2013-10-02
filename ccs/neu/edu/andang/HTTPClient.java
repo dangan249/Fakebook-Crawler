@@ -19,7 +19,8 @@ import java.util.Map ;
 import java.util.HashMap ;
 import java.util.Iterator ;
 import java.lang.StringBuilder ;
-import java.net.URL ; // Only used to represent an URL, not used to handle any networking activities
+import java.net.URL ; // ONLY USED to represent an URL, 
+                      //not used to handle any networking activities
 
 // HTTP 1.0
 public class HTTPClient{
@@ -30,10 +31,6 @@ public class HTTPClient{
 	// ==> cause NullPointerException (not a bad way to inform client :) )
 	private HTTPResponse response ; 
 
-	public HTTPClient( ){
-	}
-
-	
 	// TODO
 	// parse the entire response message to create an HTTPResponse
 	// side-effect: populate this.response
@@ -134,7 +131,45 @@ public class HTTPClient{
 		// FINISH POPULATING this.response 
 	}
 
-	private void sendRequest( HTTPMethod method) throws UnknownHostException, SocketException, IOException{
+	public void doGet() throws UnknownHostException, SocketException, 
+										 IOException, MalformedURLException{
+
+		
+		sendRequest( HTTPMethod.GET) ;
+		
+	}
+
+	public void doPost() throws UnknownHostException, SocketException, 
+										 IOException, MalformedURLException{
+
+
+		sendRequest( HTTPMethod.POST ) ;
+	}
+
+	// Same comment as the function doPostWithRedirect()
+	public void doGetWithRedirect() throws UnknownHostException, SocketException, 
+										 IOException, MalformedURLException{
+
+
+		sendRequest( HTTPMethod.GET ) ;
+
+		handleRedirect() ;
+
+	}
+
+
+	public void doPostWithRedirect()  throws UnknownHostException, SocketException, 
+										 IOException, MalformedURLException{
+
+
+		sendRequest( HTTPMethod.POST ) ;
+		handleRedirect() ;
+	}
+
+
+	private void sendRequest( HTTPMethod method) throws UnknownHostException, SocketException, 
+										 IOException, MalformedURLException{
+
 		
 		SocketClient sock = null ;
 		try{
@@ -159,66 +194,8 @@ public class HTTPClient{
 
 	}
 
-	public void doGet() throws UnknownHostException, SocketException, IOException{
-		
-		sendRequest( HTTPMethod.GET) ;
-		
-	}
-
-	// Same comment as the function doPostWithRedirect()
-	public void doGetWithRedirect() throws UnknownHostException, SocketException, IOException{
-
-		sendRequest( HTTPMethod.GET ) ;
-
-		if( response.getStatusCode() == StatusCode.MOVED_TEMPORARILY ||
-				response.getStatusCode() == StatusCode.MOVED_PERMANENTLY ){
-
-			Map<String, String> cookies = this.request.getCookies() ;
-			cookies.put("sessionid" , this.response.getCookies().get("sessionid") ) ; // GRAB the new session ID
-
-			this.request.getHeaders().removeAll("Cookie") ;
-
-			Multimap<String,String> newHeaders = this.request.getHeaders() ;
-
-
-			System.out.println( "\nREDIRECT RESPONSE: \n" ) ;
-			System.out.println( response.toString() ) ;
-
-			Iterator<String> iter = response.getHeaders().get("Location").iterator() ;
-			if ( iter.hasNext() ){
-				String newLocation  =  iter.next(); 
-				// CONSTRUCT a new HTTPRequest
-				this.request = new HTTPRequest( new URL( newLocation )  ) ;
-				request.setHeaders( newHeaders ) ;
-				request.addCookies( cookies ) ;
-				sendRequest( HTTPMethod.GET ) ;
-
-			}
-			else{
-				throw new RuntimeException("Expect a redirect URL but found none.") ;
-			}
-		}
-	}
-
-	public void doPost() throws UnknownHostException, SocketException, IOException{
-
-		sendRequest( HTTPMethod.POST ) ;
-	}
-
-
-	// Comment by Pedro: I don't like this implementation.
-	// Imagine a double redirect page: you access a page and that
-	// page redirects you to another page. This code wouldn't work.
-	// Instead use doPost() function and analyze in Crawler code
-	// along with the other codes.
-	// We can use this function in order to get the new URL to add
-	// to the queue.
-	
-	// By the way we only use POST in order to login, the rest of the
-	// requests are GET, and the login page won't redirect us.
-	public void doPostWithRedirect()  throws UnknownHostException, SocketException, IOException{
-
-		sendRequest( HTTPMethod.POST ) ;
+	private void handleRedirect() throws UnknownHostException, SocketException, 
+										 IOException, MalformedURLException{
 
 		if( response.getStatusCode() == StatusCode.MOVED_TEMPORARILY ||
 				response.getStatusCode() == StatusCode.MOVED_PERMANENTLY ){
@@ -248,6 +225,7 @@ public class HTTPClient{
 				throw new RuntimeException("Expect a redirect URL but found none.") ;
 			}
 		}
+
 	}
 
 	public HTTPRequest getRequest(){

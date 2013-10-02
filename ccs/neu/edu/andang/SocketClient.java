@@ -13,6 +13,8 @@ import java.io.PrintWriter ;
 import java.io.OutputStream ;
 
 import javax.net.ssl.*;
+
+// SocketClient is the low level class that deal with Socket and sending message
 public class SocketClient{
         
     private String host ;

@@ -8,12 +8,15 @@ import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ; 
 import java.lang.StringBuilder ;
 
+// HTTPRequest contains the headers and the body of any HTTP Message
+// Clients need to instantiate this class, populate its field, and set it in HTTPClient
+// in order to make a request 
 public class HTTPRequest{
 
 	private URL url ; // if users do not specify port, URL default it to 80
 	private String requestBody ;
 	private Multimap< String, String > headers ;
-	private Map<String, String> cookies ;
+	private Map<String, String> cookies ; // convenient place to get cookies
 
 	public HTTPRequest( URL url ){
 
@@ -34,12 +37,6 @@ public class HTTPRequest{
 		StringBuilder builder = new StringBuilder() ;
 
 		int i = 0 ;
-		
-		// TODO: cookie can be Cookie: value1; value2; name1=value1
-		// this implementation cannot deal with that yet :(
-		
-		// Comment by Pedro: in the whole crawl there is only
-		// two cookies, so don't bother about other cookie formats
 
 		for( String cookieKey : cookies.keySet() ){
 
@@ -57,6 +54,7 @@ public class HTTPRequest{
 		this.headers.put( key, builder.toString() );
 
 	}
+
 
 	// create the entire HTTP 1.0 message from this HTTPRequest
 	public String serializeRequest( HTTPClient.HTTPMethod method ){

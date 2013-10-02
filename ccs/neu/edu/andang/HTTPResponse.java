@@ -5,12 +5,13 @@ import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ; 
 import java.util.Map ;
 
+// HTTPResponse contains the headers and the body of any HTTP Message returned by a server
 public class HTTPResponse{
 
 	private URL url ;
 	private String responseBody ;
 	private Multimap< String, String > headers ; // this.headers will not contain any info about Cookies
-	private Map<String,String> cookies ;
+	private Map<String,String> cookies ; // convenient place to get cookies
 	private HTTPClient.StatusCode code ;
 
 	public void setURL(URL url){

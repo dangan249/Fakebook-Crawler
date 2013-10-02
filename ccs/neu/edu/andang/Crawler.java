@@ -83,11 +83,6 @@ public class Crawler {
 			// GETTING THE LOGIN PAGE 
 			client.doGet() ; 
 
-
-			//System.out.println( client.getRequest().toString() ) ;
-			//System.out.println( client.getResponse().toString() ) ;
-			//System.out.println("===================") ;
-
 			this.cookies = client.getResponse().getCookies() ;
 
 			request = new HTTPRequest( this.logInURL ) ;
@@ -117,11 +112,9 @@ public class Crawler {
 			request.addCookies( this.cookies ) ;
 
 			client.setRequest( request ) ;
-			//System.out.println( client.getRequest().toString() ) ;
 
 			client.doPostWithRedirect() ;
-			//System.out.println( client.getResponse().toString() ) ;
-			//System.out.println("hitest");
+
 			// First site added
 			addURL(HOST);
 		}
@@ -141,12 +134,9 @@ public class Crawler {
 	// side-effect: modify this.visitedURL, this.frontierURL, this.secretFlags
 	public void crawl(){
 
-		// check to see if cookies is set otherwise throw error
-		// make the GET call
 		while ((!frontierURL.isEmpty()) && (secretFlags.size() < 5)) {
 			sitesCrawled++;
-			if (sitesCrawled%100 == 0)
-				//System.out.println(sitesCrawled);
+			
 			URL site = frontierURL.remove();
 			
 			System.out.print(site.toString());
@@ -166,24 +156,19 @@ public class Crawler {
 			catch( SocketException ex){
 				System.out.println( "Error with underlying protocol: " + ex.toString() ) ;
 			}
+			catch( MalformedURLException ex ){
+				System.out.println( "Invalid URL: " + ex.toString() ) ;				
+ 			}
 			catch( IOException ex){
 				System.out.println( ex.toString() ) ;
 			}
 			
 			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
-			// If there is no permanent error
-			//System.out.println(stat);
+
 			
-			
-			if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
-					stat == HTTPClient.StatusCode.FORBIDDEN) {
-				// do nothing
-			}
-			// Temporal error, put the URL back in the queue
-			else if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
+			if (stat == HTTPClient.StatusCode.INTERNAL_SERVER_ERROR) {
 				frontierURL.add(site);
-			}
-		
+			}		
 			// URL moved, add new URL to the queue
 			else if (stat == HTTPClient.StatusCode.MOVED_PERMANENTLY ||
 						stat == HTTPClient.StatusCode.MOVED_TEMPORARILY) {
@@ -304,6 +289,5 @@ public class Crawler {
 		
 		crawler.printKeys();
 		
-		//System.out.println(crawler.sitesCrawled);
 	}
 }
