@@ -15,6 +15,7 @@ import java.util.Queue ;
 import java.util.Map ;
 import java.util.HashMap ;
 import java.util.Iterator ;
+import java.util.ArrayList;
 import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ;
 
@@ -52,6 +53,7 @@ public class Crawler {
 		this.visitedURL = new HashSet<String>() ;
 		this.frontierURL = new LinkedList<URL>() ;
 		this.cookies = new HashMap<String,String>() ;
+		this.secretFlags = new ArrayList<String>();
 		this.sitesCrawled = 0;
 		try{
 			this.rootURL = new URL( HOST )  ;
@@ -141,7 +143,7 @@ public class Crawler {
 
 		// check to see if cookies is set otherwise throw error
 		// make the GET call
-		while (!frontierURL.isEmpty()) {
+		while ((!frontierURL.isEmpty()) && (secretFlags.size() < 5)) {
 			sitesCrawled++;
 			if (sitesCrawled%100 == 0)
 				System.out.println(sitesCrawled);
@@ -170,7 +172,7 @@ public class Crawler {
 			
 			HTTPClient.StatusCode stat = client.getResponse().getStatusCode();
 			// If there is no permanent error
-			System.out.println(stat);
+			//System.out.println(stat);
 			
 			
 			if (stat == HTTPClient.StatusCode.BAD_REQUEST ||
@@ -209,12 +211,23 @@ public class Crawler {
 	private void parseHTML(String body) {
 		Document doc = Jsoup.parse(body);
 		Element htmlBody = doc.body();
+		Element htmlHead = doc.head();
 		Elements flags = htmlBody.getElementsByTag("h2");
 		for (int i = 0; i < flags.size(); ++i) {
 			Element flag = flags.get(i);
 			if (flag.text().length() > 70) {
 				if (flag.text().substring(0,6).equals("FLAG: "))
 					System.out.println(flag.text().substring(6,70));
+					secretFlags.add(flag.text().substring(6,70));
+			}
+		}
+		Elements headFlags = htmlHead.getElementsByTag("h2");
+		for (int i = 0; i < headFlags.size(); ++i) {
+			Element headFlag = headFlags.get(i);
+			if (headFlag.text().length() > 70) {
+				if (headFlag.text().substring(0,6).equals("FLAG: "))
+					System.out.println(headFlag.text().substring(6,70));
+					secretFlags.add(headFlag.text().substring(6,70));
 			}
 		}
 		Elements urls = htmlBody.getElementsByTag("a");
@@ -279,6 +292,11 @@ public class Crawler {
 				//System.out.println(site.toString());
 			}
 		}
+	}
+
+	private void printKeys() {
+		for (int i = 0; i < secretFlags.size(); ++i)
+			System.out.println(secretFlags.get(i));
 	}
 
 	public static void main(String args[]){
