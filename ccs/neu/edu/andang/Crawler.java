@@ -146,7 +146,7 @@ public class Crawler {
 		while ((!frontierURL.isEmpty()) && (secretFlags.size() < 5)) {
 			sitesCrawled++;
 			if (sitesCrawled%100 == 0)
-				System.out.println(sitesCrawled);
+				//System.out.println(sitesCrawled);
 			URL site = frontierURL.remove();
 			
 			System.out.print(site.toString());
@@ -304,6 +304,6 @@ public class Crawler {
 		
 		crawler.printKeys();
 		
-		System.out.println(crawler.sitesCrawled);
+		//System.out.println(crawler.sitesCrawled);
 	}
 }
