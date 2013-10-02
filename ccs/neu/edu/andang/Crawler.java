@@ -15,6 +15,7 @@ import java.util.Queue ;
 import java.util.Map ;
 import java.util.HashMap ;
 import java.util.Iterator ;
+import java.util.ArrayList;
 import com.google.common.collect.Multimap ;
 import com.google.common.collect.HashMultimap ;
 
@@ -52,6 +53,7 @@ public class Crawler {
 		this.visitedURL = new HashSet<String>() ;
 		this.frontierURL = new LinkedList<URL>() ;
 		this.cookies = new HashMap<String,String>() ;
+		this.secretFlags = new ArrayList<String>();
 		this.sitesCrawled = 0;
 		try{
 			this.rootURL = new URL( HOST )  ;
@@ -147,7 +149,7 @@ public class Crawler {
 				System.out.println(sitesCrawled);
 			URL site = frontierURL.remove();
 			
-			//System.out.print(site.toString());
+			System.out.print(site.toString());
 			HTTPRequest request;
 			try {
 				request = new HTTPRequest( site ) ;
